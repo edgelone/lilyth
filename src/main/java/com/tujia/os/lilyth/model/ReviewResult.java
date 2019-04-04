@@ -6,12 +6,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+/**
+ * @author lk
+ * @date 2019/4/4
+ */
 @Data
-@Entity(name = "retailers")
-public class Retailer extends BaseUser{
+@Entity(name = "review_results")
+public class ReviewResult {
   @Id
   @GeneratedValue
   private Integer id;
-  private String avatarKey;
-  private String avatarSwiftUrl;
+  private String data;
 }

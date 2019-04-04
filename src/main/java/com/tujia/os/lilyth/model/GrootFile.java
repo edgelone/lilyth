@@ -7,7 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Data
-@Entity
+@Entity(name = "groot_files")
 public class GrootFile extends BaseModel{
     @Id
     @GeneratedValue

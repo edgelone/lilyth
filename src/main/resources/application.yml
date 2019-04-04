@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/lilyth?characterEncoding=utf8&useSSL=true&zeroDateTimeBehavior=convertToNull
-    password: 2314
+    url: jdbc:mysql://localhost:3306/vampire?characterEncoding=utf8&useSSL=true&zeroDateTimeBehavior=convertToNull
+    password: 231
     username: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: com.mysql.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       maximum-pool-size: 40
@@ -11,8 +11,10 @@ spring:
       connection-init-sql: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
       connection-test-query: select 1
       minimum-idle: 10
-
   jpa:
     hibernate:
       naming:
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/vampire
