@@ -2,8 +2,13 @@ package com.tujia.os.lilyth.service;
 
 import com.tujia.os.lilyth.dao.*;
 import com.tujia.os.lilyth.model.*;
+import com.tujia.os.lilyth.util.JacksonUtil;
+import com.tujia.os.lilyth.util.StreamUtil;
 import com.tujia.os.lilyth.util.Utils;
+import com.tujia.os.lilyth.vo.File;
+import com.tujia.os.lilyth.vo.HouseDetail;
 import com.tujia.os.lilyth.vo.Plain;
+import com.tujia.os.lilyth.vo.Room;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +36,8 @@ public class AnalysisService {
   private RateDao rateDao;
   @Autowired
   private ContractDao contractDao;
+  @Autowired
+  private StashHouseDao stashHouseDao;
   @Autowired
   private AntmanFileDao antmanFileDao;
 
@@ -125,7 +132,35 @@ public class AnalysisService {
     log.info("analysis rate file done:{}", models.size());
   }
 
-  public void analysisStashHouse(){
+  public void analysisStashHouse() {
+    List<StashHouse> stashHouses = stashHouseDao.findAll();
+    List<BaseModel> models = stashHouses.stream()
+        .map(StashHouse::getContent)
+        .map(s -> JacksonUtil.readValue(s, HouseDetail.class))
+        .filter(Objects::nonNull)
+        .map(s -> {
+          List<File> files = new ArrayList<>();
+          StreamUtil.open(s.getImageInfos())
+              .filter(Objects::nonNull)
+              .filter(i -> !StringUtils.isEmpty(i.getFileKey()))
+              .filter(i -> StringUtils.isEmpty(i.getSwiftUrl()))
+              .forEach(files::add);
+          StreamUtil.open(s.getRooms())
+              .map(Room::getImageInfos)
+              .filter(Objects::nonNull)
+              .flatMap(Collection::stream)
+              .filter(Objects::nonNull)
+              .filter(i -> !StringUtils.isEmpty(i.getFileKey()))
+              .filter(i -> StringUtils.isEmpty(i.getSwiftUrl()))
+              .forEach(files::add);
+          return files;
+        })
+        .flatMap(Collection::stream)
+        .map(f -> new BaseModel(f.getFileKey(), f.getSwiftUrl()))
+        .collect(Collectors.toList());
+    List<Plain> result = getPlains(models);
+    appendToFile(result, "stash_houses");
+    log.info("analysis stash house file done:{}", models.size());
 
   }
 
